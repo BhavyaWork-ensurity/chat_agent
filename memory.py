@@ -3,11 +3,16 @@ from sentence_transformers import SentenceTransformer
 
 from config import CHROMA_PATH
 
+# Initialize persistent ChromaDB storage
 client = PersistentClient(path=CHROMA_PATH)
 
+# Collection used to store and search user memories.
 collection = client.get_or_create_collection(name = "user_memory")
+
+# Embedding model used to convert text into vectors.
 embedder = SentenceTransformer("all-MiniLM-L6-v2")
 
+# Store a memory in ChromaDB by converting it into a vector embedding.
 def save_memory(memory_text):
 
     embedding = embedder.encode(memory_text).tolist()
@@ -20,6 +25,7 @@ def save_memory(memory_text):
         embeddings=[embedding]
     )
 
+# Retrieve the most relevant stored memories for a given query.
 def retrieve_memories(
     query,
     k=5

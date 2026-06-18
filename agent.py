@@ -9,6 +9,8 @@ llm = ChatOllama(
     temperature=0.7
 )
 
+# Retrieves relevant memories and uses them as context
+# to generate a response from the language model.
 def chat(user_input):
 
     memories = retrieve_memories(
@@ -34,7 +36,8 @@ User:
 
     return response.content
 
-
+# Extracts long-term user facts from the input and
+# returns them as a JSON object for storage.
 def extract_memory(
     user_input
 ):

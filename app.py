@@ -5,6 +5,10 @@ from agent import (
 
 from memory import save_memory
 
+# Entry point for the chat agent.
+# Handles user interaction, response generation,
+# memory extraction, and memory storage.
+
 print("Agent ready")
 
 while True:
