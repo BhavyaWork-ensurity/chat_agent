@@ -2,8 +2,7 @@ from langchain_ollama import ChatOllama
 import json
 from config import MODEL_NAME
 from tools import search_memory, web_search
-from langchain.agents import create_tool_calling_agent
-from langchain.agents import AgentExecutor
+from langchain_classic.agents import create_tool_calling_agent, AgentExecutor
 from langchain_core.prompts import ChatPromptTemplate
 
 llm = ChatOllama(
