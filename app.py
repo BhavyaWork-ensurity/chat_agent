@@ -1,8 +1,4 @@
-from agent import (
-    chat,
-    extract_memory
-)
-
+from agent import chat, extract_memory
 from memory import save_memory
 
 # Entry point for the chat agent.
@@ -13,30 +9,17 @@ print("Agent ready")
 
 while True:
 
-    user_input = input(
-        "\nYou: "
-    )
+    user_input = input("\nYou: ")
 
     if user_input.lower() == "exit":
         break
 
-    response = chat(
-        user_input
-    )
+    response = chat(user_input)
 
-    print(
-        "\nAssistant:",
-        response
-    )
+    print("\nAssistant:", response)
 
-    memory = extract_memory(
-        user_input
-    )
+    memory = extract_memory(user_input)
 
-    if (
-        memory
-        and memory.get("remember")
-    ):
-        save_memory(
-            memory["memory"]
-        )
+    if (memory and memory.get("remember")):
+        save_memory(memory["memory"])
+        print(f"\n[Memory Saved] {memory['memory']}")

@@ -1,47 +1,74 @@
 from langchain_ollama import ChatOllama
-from langchain_core.messages import HumanMessage
-from memory import retrieve_memories
 import json
 from config import MODEL_NAME
+from tools import search_memory, web_search
+from langchain.agents import create_tool_calling_agent
+from langchain.agents import AgentExecutor
+from langchain_core.prompts import ChatPromptTemplate
 
 llm = ChatOllama(
     model=MODEL_NAME,
     temperature=0.7
 )
 
-# Retrieves relevant memories and uses them as context
-# to generate a response from the language model.
+# Tools available to the agent.
+# The model can decide when to use them.
+tools = [
+    search_memory, web_search
+]
+
+# Defines the agent's behavior and provides
+# a scratchpad for intermediate reasoning
+# and tool-calling steps.
+prompt = ChatPromptTemplate.from_messages(
+    [
+        ("system",
+         "You are a helpful AI assistant with memory and web access."),
+        ("human", "{input}"),
+        ("placeholder", "{agent_scratchpad}")
+    ]
+)
+
+# Creates a LangChain tool-calling agent
+# capable of choosing and using tools.
+agent = create_tool_calling_agent(
+    llm,
+    tools,
+    prompt
+)
+
+
+# Executes the agent loop:
+# User -> Tool Selection -> Tool Execution
+# -> Reasoning -> Final Answer
+agent_executor = AgentExecutor(
+    agent=agent,
+    tools=tools,
+    verbose=True
+)
+
+
+# Main entry point for user conversations.
+# Runs the LangChain agent and returns
+# the final response.
 def chat(user_input):
 
-    memories = retrieve_memories(
-        user_input
+    result = agent_executor.invoke(
+        {
+            "input": user_input
+        }
     )
 
-    memory_block = "\n".join(
-        memories
-    )
+    return result["output"]
 
-    prompt = f"""
-Relevant memories:
 
-{memory_block}
-
-User:
-{user_input}
-"""
-
-    response = llm.invoke(
-        [HumanMessage(content=prompt)]
-    )
-
-    return response.content
-
-# Extracts long-term user facts from the input and
-# returns them as a JSON object for storage.
+# Uses the LLM to identify durable user facts
+# that should be stored in long-term memory.
 def extract_memory(
     user_input
 ):
-
+    # Prompt instructing the model to convert
+# user information into a structured memory.
     extraction_prompt = f"""
 Extract durable user facts.
 
@@ -65,6 +92,6 @@ User:
             result.content
         )
     
-    except:
+    except json.JSONDecodeError:
         return None
     
